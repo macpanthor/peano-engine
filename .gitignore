@@ -1,0 +1,48 @@
+# nothing to build here, so this list is short.
+# the site is three files and a folder of icons. that's the whole thing.
+
+# ---- os junk ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ---- editor / ide ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# ---- logs ----
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- node ----
+# not used by this project, but if you run a local server or
+# add tooling later you don't want node_modules in here
+node_modules/
+npm-debug.log*
+.npm
+.yarn/
+pnpm-lock.yaml
+
+# ---- env / secrets ----
+# there shouldn't ever be any, but just in case
+.env
+.env.*
+!.env.example
+
+# ---- misc ----
+cache/
+.cache/
+tmp/
+temp/

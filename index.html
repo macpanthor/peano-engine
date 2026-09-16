@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!--
+  can you find the bug?
+
+  hint: it's in the NEXT table. it's not subtle if you know where to look
+  but it's not in this file, so good luck.
+
+  ps. if you're reading the source before using the thing:
+  the answer to "why" is "i was bored".
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="a calculator that adds and subtracts without using a single arithmetic operator. yes really.">
+<meta name="theme-color" content="#0b0f17">
+<title>a calculator that refuses to do math</title>
+
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ================= header ================= -->
+  <header class="top">
+    <img class="logo" src="assets/logo.webp" alt="" width="52" height="52">
+    <div class="toptext">
+      <h1>a calculator that refuses to do math</h1>
+      <p class="blurb">
+        it adds. it subtracts. it uses <strong>zero</strong> arithmetic operators to do it.
+      </p>
+      <p class="byline">
+        built by
+        <a href="https://macpanthor.com/" target="_blank" rel="noopener">
+          macpanthor
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3zM5 5h5v2H7v10h10v-3h2v5H5V5z"/></svg>
+        </a>
+      </p>
+    </div>
+  </header>
+
+  <!-- ================= tabs ================= -->
+  <div class="tabs" role="tablist" aria-label="sections">
+    <button role="tab" id="tabCalc" aria-controls="panelCalc" aria-selected="true" class="on">
+      calculator
+    </button>
+    <button role="tab" id="tabAbout" aria-controls="panelAbout" aria-selected="false" tabindex="-1">
+      about <span class="tabnote">how does this work</span>
+    </button>
+  </div>
+
+  <!-- ==================================================================
+       TAB 1 -- just the calculator. nothing else.
+       ================================================================== -->
+  <section role="tabpanel" id="panelCalc" aria-labelledby="tabCalc" tabindex="0">
+    <main>
+
+      <form class="box" id="calcForm" autocomplete="off">
+
+        <div class="fields">
+          <div class="f">
+            <label for="a">first number</label>
+            <input id="a" type="number" min="0" max="100000" step="1" value="1234" inputmode="numeric">
+          </div>
+
+          <div class="f f-op">
+            <label id="opLabel">and we're</label>
+            <div class="op" id="opToggle" role="radiogroup" aria-labelledby="opLabel">
+              <button type="button" data-op="add" class="active" role="radio" aria-checked="true" aria-label="adding">+</button>
+              <button type="button" data-op="sub" role="radio" aria-checked="false" aria-label="subtracting">&minus;</button>
+            </div>
+            <span class="note" id="opNote">counting upward</span>
+          </div>
+
+          <div class="f">
+            <label for="b">second number</label>
+            <input id="b" type="number" min="0" max="100000" step="1" value="500" inputmode="numeric">
+          </div>
+
+          <div class="f f-go">
+            <button id="calcBtn" type="submit" class="go">do it</button>
+          </div>
+        </div>
+
+        <p class="fineprint">
+          0 to 100000 only. subtraction stops at zero because this thing refuses to
+          acknowledge negative numbers. addition just gives up if it runs out of table.
+        </p>
+
+      </form>
+
+      <!-- progress. hidden until you press the button. -->
+      <div class="progress" id="progressWrap" aria-hidden="true">
+        <div class="plabel">
+          <span id="progressText">walking...</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="ptrack"><div class="pfill" id="barFill"></div></div>
+        <p class="pnote">this is not a fake loading bar. it is counting. slowly. on purpose.</p>
+      </div>
+
+      <!-- the answer -->
+      <div class="box answer-box">
+        <div class="rowlabel">the answer</div>
+        <div id="output" role="status" aria-live="polite"><span class="caret"></span></div>
+      </div>
+
+      <!-- log -->
+      <div class="box log-box">
+        <div class="rowlabel">what it's thinking</div>
+        <pre class="log" id="log"></pre>
+      </div>
+
+    </main>
+  </section>
+
+  <!-- ==================================================================
+       TAB 2 -- everything else. how it works, why it's slow, the bug.
+       ================================================================== -->
+  <section role="tabpanel" id="panelAbout" aria-labelledby="tabAbout" tabindex="0" hidden>
+
+    <div class="notes">
+
+      <h2>ok so how</h2>
+
+      <p>
+        short version: there are no <code>+</code>, <code>-</code>, <code>*</code>,
+        <code>/</code>, <code>++</code>, <code>--</code>, <code>+=</code> or
+        <code>-=</code> anywhere in <code>script.js</code>. i grep for them before
+        every commit. addition and subtraction still come out right. here's the cheat:
+      </p>
+
+      <ol class="steps">
+        <li>
+          <h3>arrays are secretly counters</h3>
+          <p>
+            <code>push()</code> makes <code>.length</code> go up by exactly one.
+            <code>pop()</code> makes it go down by exactly one. so an array <em>is</em>
+            a counter and <code>.length</code> <em>is</em> the value. no operators
+            required, no rules broken (arguably).
+          </p>
+          <pre class="code"><code>var n = [];
+n.push(null);   // n.length is 1
+n.push(null);   // n.length is 2
+                // look ma, no +</code></pre>
+        </li>
+
+        <li>
+          <h3>use it to build two big tables</h3>
+          <p>
+            walk that counter from 0 up to 100000 and write down each step. that's
+            the successor table. do it backwards by popping and you get the
+            predecessor table. 200000 numbers total. it's fine. it's <em>fine</em>.
+          </p>
+          <pre class="code"><code>NEXT[0]      = 1
+NEXT[1]      = 2
+NEXT[99999]  = 100000</code></pre>
+        </li>
+
+        <li>
+          <h3>then addition is just walking</h3>
+          <p>
+            for <code>a + b</code>, start at <code>a</code> and ask <code>NEXT</code>
+            where to go, <code>b</code> times. subtraction is the same thing but
+            through <code>PREV</code>. that's it. that's the calculator.
+          </p>
+          <pre class="code"><code>result = a
+repeat b times:
+  result = NEXT[result]</code></pre>
+        </li>
+      </ol>
+
+      <h2>why is it so slow</h2>
+      <p>
+        because it genuinely is doing the work. this isn't a progress bar doing a
+        little animation while the real answer comes from a hardware
+        <code>ADD</code> instruction -- there is no hardware instruction. peano
+        arithmetic really is "keep counting until you get there", so
+        <code>50000 + 50000</code> is 50000 separate table lookups and takes about
+        two seconds. the bar is honest. annoyingly honest.
+      </p>
+
+      <h2>the bug</h2>
+      <p class="bug">
+        there's one wrong number in the successor table, on purpose, and it has
+        been there since the first version. it only does anything if a walk
+        <em>lands on 41 and then tries to leave</em>, which means <code>0+41</code>
+        is fine and <code>0+42</code> is not. add your way through the low forties
+        and watch it lie to you.
+      </p>
+
+      <h2>details</h2>
+      <ul class="details">
+        <li><span>numbers it knows</span> 0 to 100000</li>
+        <li><span>tables</span> 100000 successors, 100000 predecessors</li>
+        <li><span>too big</span> says OVERFLOW and gives up</li>
+        <li><span>too small</span> stops at 0</li>
+        <li><span>to install</span> there is nothing to install. it's three files.</li>
+        <li><span>dependencies</span> none. zero. not even a font.</li>
+        <li><span>arithmetic operators</span> still zero. still checked.</li>
+      </ul>
+
+      <!-- a way back, so you don't have to hunt for the tab -->
+      <p class="backlink">
+        <button type="button" class="linkish" data-jump="calc">&larr; back to the calculator</button>
+      </p>
+
+      <p class="byline byline-foot">
+        more projects at
+        <a href="https://macpanthor.com/" target="_blank" rel="noopener">macpanthor.com</a>
+      </p>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>0 arithmetic operators were harmed in the making of this calculator.</p>
+    <p class="tiny">written at an unreasonable hour. be nice to it.</p>
+
+    <div class="footer-socials">
+      <a href="https://macpanthor.com/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm6.9 6h-2.9a15.7 15.7 0 00-1.3-3.4A8 8 0 0118.9 8zM12 4.1c.8 1.1 1.4 2.4 1.7 3.9h-3.4c.3-1.5.9-2.8 1.7-3.9zM4.3 14a8 8 0 010-4h3.3a17 17 0 000 4H4.3zm.8 2h2.9c.3 1.2.8 2.4 1.3 3.4A8 8 0 015.1 16zm2.9-8H5.1a8 8 0 014.2-3.4A15.7 15.7 0 008 8zm3.1 11.9c-.8-1.1-1.4-2.4-1.7-3.9h3.4c-.3 1.5-.9 2.8-1.7 3.9zm2.1-5.9h-3.8a15 15 0 010-4h3.8a15 15 0 010 4zm.5 5.4c.5-1 1-2.2 1.3-3.4h2.9a8 8 0 01-4.2 3.4zm1.7-5.4a17 17 0 000-4h3.3a8 8 0 010 4h-3.3z"/></svg>
+        portfolio
+      </a>
+      <a href="https://github.com/macpanthor" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 00-3.2 19.5c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.3-1.1.6-1.4-2.2-.2-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 015 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.8-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0012 2z"/></svg>
+        github
+      </a>
+      <a href="https://www.linkedin.com/in/shuaibahamad" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.8-2 3.7-2 3.9 0 4.6 2.6 4.6 5.9V21h-4v-5.6c0-1.3 0-3.1-1.9-3.1s-2.2 1.5-2.2 3V21h-4V9z"/></svg>
+        linkedin
+      </a>
+    </div>
+  </footer>
+
+</div>
+
+<script src="assets/script.js"></script>
+</body>
+</html>
