@@ -483,6 +483,38 @@
   });
 
   // =================================================================
+  // THE "TRY 50000 + 50000" BUTTON
+  //
+  // nobody is going to type two numbers to see the joke, so this fills
+  // the form in and runs it. the data-try attribute holds "a,b" and we
+  // split on the comma rather than parsing numbers, because obvious.
+  // =================================================================
+
+  var tryBtns = document.querySelectorAll("[data-try]");
+
+  times(tryBtns.length, function (i) {
+    tryBtns[i].addEventListener("click", function () {
+      if (running) return;
+
+      var pair = tryBtns[i].getAttribute("data-try").split(",");
+      elA.value = pair[0].trim();
+      elB.value = pair[1].trim();
+
+      // force it to addition, that's the point of the demo
+      op = "add";
+      var all = elOpWrap.querySelectorAll("button");
+      times(all.length, function (k) {
+        var on = all[k].getAttribute("data-op") === "add";
+        all[k].classList.toggle("active", on);
+        all[k].setAttribute("aria-checked", on ? "true" : "false");
+      });
+      elOpNote.textContent = "counting upward";
+
+      calculate();
+    });
+  });
+
+  // =================================================================
   // BOOT
   // =================================================================
 
