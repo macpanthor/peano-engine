@@ -10,21 +10,39 @@ addition really is "count up one at a time", so that's what it does.
 
 **demo:** https://macpanthor.github.io/peano-engine/ · built by [macpanthor](https://macpanthor.com/)
 
+MIT licensed. fork it, steal it, do whatever.
+
+---
+
+## steal this trick
+
+the array-as-counter thing isn't specific to calculators. any time you need to
+count without a `+` — code golf, interview puzzles, teaching recursion, weird
+contest rules, "no arithmetic operators" homework — this works:
+
+```js
+var n = [];          // n.length is your number
+n.push(null);        // n.length just went up by 1
+n.pop();             // n.length just went down by 1
+```
+
+that's it. that's the whole trick. `.length` is data, `push`/`pop` are your
+increment and decrement, and you never type an operator.
+
+once you have that, the successor table falls out of it, and addition is just a
+loop. same idea works in any language with growable arrays — python `list`,
+ruby `Array`, php arrays, even a `Vec` in rust.
+
+fork it and use it in something dumber than a calculator. i'd genuinely like
+to see that.
+
 ---
 
 ## how it works
 
-arrays have a `.length`. `push()` makes it bigger by 1. `pop()` makes it smaller
-by 1. so an array is a counter, and its length *is* the number.
+this is the same trick, just applied to a whole calculator.
 
-```js
-var n = [];
-n.push(null);   // n.length is 1
-n.push(null);   // n.length is 2
-                // look ma, no +
-```
-
-count one of those up to 100000 and write down every step, and you've got a
+count an array up to 100000 and write down every step, and you've got a
 successor table. do it backwards by popping and you've got a predecessor table.
 
 ```js
